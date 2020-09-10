@@ -1,0 +1,27 @@
+
+const wakeUpDyno = (url = "https://ccxt-cors-proxy.herokuapp.com/", interval = 25, callback) => {
+  const milliseconds = interval * 60 * 1000
+
+  setTimeout(() => {
+    try {
+      log("setTimeout called.")
+      // HTTP GET request to the dyno's url
+      fetch(url).then(() => log(`Fetching ${url}.`))
+    } catch (err) { // catch fetch errors
+      log(`Error fetching ${url}: ${err.message} Will try again in ${interval} minutes...`)
+    } finally {
+      try {
+        callback() // execute callback, if passed
+      } catch (e) { // catch callback error
+        if (callback) {
+          log(`Callback failed: ${e.message}`)
+        }
+      } finally {
+        // do it all again
+        wakeUpDyno(url, interval, callback)
+      }
+    }
+  }, milliseconds)
+}
+
+module.exports = wakeUpDyno
